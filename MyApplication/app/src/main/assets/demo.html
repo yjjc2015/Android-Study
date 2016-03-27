@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <script type="text/javascript">
+	  document.write("Hello World!")
+	  function sendToAndroid(message)
+	  {
+	    androidObject.send(message);
+	  }
+	  function openPrompt(){
+	    var val = document.getElementById("text").value;
+	    var ret = prompt("1",val);
+	  }
+    </script>
+  </head>
+  <body>
+    <input type="button" value="In WebView" onClick="sendToAndroid('In Android land');"/>
+    <input type="button" value="Toast提示" onclick="myObj.showToast('曹神前来日狗~');"/>
+    <input type="button" value="列表对话框" onclick="myObj.showDialog();"/>
+    <br/><br/><br/><br/>
+    <input type="text" id="text">
+    <br/>
+    <input type="button" value="弹出Prompt框" onclick="javascript:openPrompt();"/>
+  </body>

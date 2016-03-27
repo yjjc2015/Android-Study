@@ -1,13 +1,18 @@
 package yjjc.cl.com.androidstudy;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by Administrator on 2016/3/25.
@@ -46,11 +51,9 @@ public class WebViewActivity extends Activity {
             @Override//显示加载的进度
             public void onProgressChanged(WebView view, int newProgress) {
 //                super.onProgressChanged(view, newProgress);
-                if (newProgress == 100)
-                {
+                if (newProgress == 100) {
                     progressBar.setVisibility(View.INVISIBLE);
-                } else
-                {
+                } else {
                     progressBar.setVisibility(View.VISIBLE);
                     progressBar.setProgress(newProgress);
                 }
@@ -60,8 +63,50 @@ public class WebViewActivity extends Activity {
             public void onReceivedTitle(WebView view, String title) {
                 tv.setText(title);
             }
+
+            @Override//Android4.2以下，使用更安全的监听Js的Prompt方法，实现WebView与js交互
+            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+                if (message.equals("1"))
+                {
+                    Toast.makeText(WebViewActivity.this, "Prompt Open", Toast.LENGTH_SHORT).show();
+                    result.confirm("result");
+                    return true;
+                }
+                return super.onJsPrompt(view, url, message, defaultValue, result);
+            }
         });
-        webView.postUrl(url, null);//Post请求，第二个参数的类型是字节数组，代表请求参数
+
+        //针对3.0以上的系统版本移除有安全问题的js接口
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            dealJavaScriptLeak();
+
+        //加载网络请求的界面
+//        webView.postUrl(url, null);//Post请求，第二个参数的类型是字节数组，代表请求参数
 //        webView.loadUrl(url);
+        //加载html字符串
+//        String data = "<html><body><h1>Hello, WebView</h1></body></html>";
+//        webView.loadData(data, "text/html", "UTF-8");
+
+        //注入JavaScript对象
+        webView.addJavascriptInterface(new Object()
+        {
+            @JavascriptInterface
+            public void send(String message)
+            {
+                Toast.makeText(WebViewActivity.this, "Received message : " + message, Toast.LENGTH_SHORT).show();
+                Log.i("chenlong", "Received message : " + message);
+            }
+        },"androidObject");
+        webView.addJavascriptInterface(new MyObject(this), "myObj");
+        //加载本地assets下的html资源文件
+        webView.loadUrl("file:///android_asset/demo.html");
+    }
+
+    //为了解决安全问题，移除Android系统开放的部分js接口
+    private void dealJavaScriptLeak()
+    {
+        webView.removeJavascriptInterface("searchBoxJavaBridge_");
+        webView.removeJavascriptInterface("accessibility");
+        webView.removeJavascriptInterface("accessibilityTraversal");
     }
 }
