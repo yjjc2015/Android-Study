@@ -13,13 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".WebViewActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
+        <activity android:name="yjjc.cl.com.androidstudy.test.Main2Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".WebViewActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
     </application>
 
